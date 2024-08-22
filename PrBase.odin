@@ -7,8 +7,8 @@ main :: proc() {
     raylib.SetTargetFPS(60)
 
     player_pos := raylib.Vector2 {400, 300}
-    player_run_texture := raylib.LoadTexture("Big_Dude_Sheet.png")
-    player_run_num_frames := 4
+    player_run_texture := raylib.LoadTexture("TheBull.png")
+    player_run_num_frames := 1
     player_run_frame_timer: f32
     player_run_current_frame: int
     player_run_frame_length := f32(0.1)
@@ -51,9 +51,16 @@ main :: proc() {
             x = f32(player_run_current_frame) * player_run_width / f32(player_run_num_frames),
             y = 0,
             width = player_run_width / f32(player_run_num_frames),
-            height = player_run_height
+            height = player_run_height,
         }
-        raylib.DrawTextureRec(player_run_texture, draw_player_source, player_pos, raylib.WHITE)
+
+        draw_player_dest := raylib.Rectangle {
+            x = player_pos.x,
+            y = player_pos.y,
+            width = player_run_width * 1.5 / f32(player_run_num_frames),
+            height = player_run_height * 1.5,
+        }
+        raylib.DrawTexturePro(player_run_texture, draw_player_source, draw_player_dest, 0, 0, raylib.WHITE)
         raylib.EndDrawing()
     }
 
