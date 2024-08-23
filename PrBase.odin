@@ -19,7 +19,7 @@ main :: proc() {
         draw_map(&game_map)
 
         // Update and draw the player
-        move_player(&player, 400) // 400 pixels per second
+        move_player(&player, &game_map, 400) // 400 pixels per second
         update_player_frame(&player)
         draw_player(&player)
 
