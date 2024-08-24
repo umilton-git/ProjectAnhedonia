@@ -5,23 +5,41 @@ main :: proc() {
     rl.InitWindow(800, 600, "Test")
     rl.SetTargetFPS(60)
 
-    // Initialize the player
-    player := init_player("TheBull.png", {300, 400})
-
     // Initialize the map
-    game_map := init_map({600, 400}, rl.GREEN)
+    game_map := init_map({1000, 1000}, rl.Color{224, 217, 168, 255})
+
+    // Initialize the player at the center of the map
+    player := init_player("TheBull.png", {game_map.size.x/2, game_map.size.y/2})
+
+    // Initialize the camera
+    camera := init_camera()
 
 
     for !rl.WindowShouldClose() {
+        // Update
+        move_player(&player, &game_map, 400) // 400 pixels per second
+        update_player_frame(&player)
+        update_camera(&camera, player.position)
+
+        // Update camera to center on player
+        camera_target := rl.Vector2{
+            player.position.x + player.size.x/2,
+            player.position.y + player.size.y/2,
+        }
+        update_camera(&camera, camera_target)
+
+        // Draw
         rl.BeginDrawing()
         rl.ClearBackground(rl.BLACK)
 
-        draw_map(&game_map)
+        begin_camera_mode(&camera)
+        {
+            draw_map(&game_map)
+            draw_player(&player)
+        }
+        end_camera_mode()
 
-        // Update and draw the player
-        move_player(&player, &game_map, 400) // 400 pixels per second
-        update_player_frame(&player)
-        draw_player(&player)
+        // UI Elements Will Go Here
 
         rl.EndDrawing()
     }
