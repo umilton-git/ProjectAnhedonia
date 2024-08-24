@@ -42,32 +42,59 @@ move_player :: proc(p: ^Player, game_map: ^GameMap, speed: f32) {
     delta_time := rl.GetFrameTime()
     movement := rl.Vector2{}
 
-    if rl.IsKeyDown(.LEFT) {
+    // Check left movement
+    if rl.IsKeyDown(.LEFT) && !check_collision(rl.Vector2{p.position.x - speed * delta_time, p.position.y}, p.size, game_map) {
         movement.x -= 1
     }
-    if rl.IsKeyDown(.RIGHT) {
+    // Check right movement
+    if rl.IsKeyDown(.RIGHT) && !check_collision(rl.Vector2{p.position.x + speed * delta_time, p.position.y}, p.size, game_map) {
         movement.x += 1
     }
-    if rl.IsKeyDown(.DOWN) {
-        movement.y += 1
-    }
-    if rl.IsKeyDown(.UP) {
+    // Check upward movement
+    if rl.IsKeyDown(.UP) && !check_collision(rl.Vector2{p.position.x, p.position.y - speed * delta_time}, p.size, game_map) {
         movement.y -= 1
     }
+    // Check downward movement
+    if rl.IsKeyDown(.DOWN) && !check_collision(rl.Vector2{p.position.x, p.position.y + speed * delta_time}, p.size, game_map) {
+        movement.y += 1
+    }
 
+    // Normalize diagonal movement
     if movement.x != 0 && movement.y != 0 {
         movement = rl.Vector2Normalize(movement)
     }
 
+    // Apply movement
     movement = rl.Vector2Scale(movement, speed * delta_time)
+    p.position = rl.Vector2Add(p.position, movement)
 
-    new_position := rl.Vector2Add(p.position, movement)
+    // Clamp the position within the map boundaries
+    p.position.x = clamp(p.position.x, 0, game_map.size.x - p.size.x)
+    p.position.y = clamp(p.position.y, 0, game_map.size.y - p.size.y)
+}
 
-    // Clamp the new position within the map boundaries
-    new_position.x = clamp(new_position.x, 0, game_map.size.x - p.size.x)
-    new_position.y = clamp(new_position.y, 0, game_map.size.y - p.size.y)
-
-    p.position = new_position
+check_collision :: proc(player_pos, player_size: rl.Vector2, game_map: ^GameMap) -> bool {
+    player_rect := rl.Rectangle{
+        x = player_pos.x,
+        y = player_pos.y,
+        width = player_size.x,
+        height = player_size.y,
+    }
+    
+    for &obj in game_map.objects {
+        obj_rect := rl.Rectangle{
+            x = obj.mapLocation.x,
+            y = obj.mapLocation.y,
+            width = obj.size.x,
+            height = obj.size.y,
+        }
+        
+        if rl.CheckCollisionRecs(player_rect, obj_rect) {
+            return true  // Collision detected
+        }
+    }
+    
+    return false  // No collision
 }
 
 draw_player :: proc(p: ^Player) {
