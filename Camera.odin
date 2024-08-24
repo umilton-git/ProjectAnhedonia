@@ -1,5 +1,4 @@
 package main
-
 import rl "vendor:raylib"
 
 Camera :: struct {

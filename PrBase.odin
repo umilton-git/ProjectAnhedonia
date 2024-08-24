@@ -11,6 +11,10 @@ main :: proc() {
     // Initialize the player at the center of the map
     player := init_player("TheBull.png", {game_map.size.x/2, game_map.size.y/2})
 
+    // Add some objects to the map
+    add_object_to_map(&game_map, init_obj({50, 50}, {200, 100}, rl.RED, true))
+    add_object_to_map(&game_map, init_obj({30, 30}, {500, 250}, rl.BLUE, false))
+
     // Initialize the camera
     camera := init_camera(game_map.size)
 
