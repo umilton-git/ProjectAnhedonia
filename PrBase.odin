@@ -12,7 +12,7 @@ main :: proc() {
     player := init_player("TheBull.png", {game_map.size.x/2, game_map.size.y/2})
 
     // Initialize the camera
-    camera := init_camera()
+    camera := init_camera(game_map.size)
 
 
     for !rl.WindowShouldClose() {
