@@ -1,19 +1,35 @@
 package main
 import rl "vendor:raylib"
 
+InteractionType :: enum {
+    DisplayText,
+    TriggerEffect,
+    Collectible,
+}
+
+InteractionData :: struct {
+    text: string,
+    effect_id: int,
+    collectible_id: string,
+}
+
 Object :: struct {
     size: rl.Vector2,
     mapLocation: rl.Vector2,
     color: rl.Color,
     interactable: bool,
+    interaction_type: Maybe(InteractionType),
+    interaction_data: Maybe(InteractionData),
 }
 
-init_obj :: proc(dimensions: rl.Vector2, loc: rl.Vector2, col: rl.Color, interact: bool) -> Object {
+init_obj :: proc(dimensions: rl.Vector2, loc: rl.Vector2, col: rl.Color, interact: bool, inter_type: Maybe(InteractionType) = nil, inter_data: Maybe(InteractionData) = nil) -> Object {
     return Object{
         size = dimensions,
         mapLocation = loc,
         color = col,
         interactable = interact,
+        interaction_type = inter_type,
+        interaction_data = inter_data,
     }
 }
 
