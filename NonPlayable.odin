@@ -13,6 +13,11 @@ InteractionData :: struct {
     collectible_id: string,
 }
 
+MovementType :: enum {
+    Random,
+    BackNForth,
+}
+
 NP :: struct {
     size: rl.Vector2,
     mapLocation: rl.Vector2,
@@ -20,9 +25,12 @@ NP :: struct {
     interactable: bool,
     interaction_type: Maybe(InteractionType),
     interaction_data: Maybe(InteractionData),
+    movementRange: Maybe(rl.Vector2),
+    movementType: Maybe(MovementType),
+    movementSpeed: Maybe(int),
 }
 
-init_np :: proc(dimensions: rl.Vector2, loc: rl.Vector2, col: rl.Color, interact: bool, inter_type: Maybe(InteractionType) = nil, inter_data: Maybe(InteractionData) = nil) -> NP {
+init_np :: proc(dimensions: rl.Vector2, loc: rl.Vector2, col: rl.Color, interact: bool, inter_type: Maybe(InteractionType) = nil, inter_data: Maybe(InteractionData) = nil, moveRange: Maybe(rl.Vector2) = nil, moveType: Maybe(MovementType) = nil, moveSpd: Maybe(int) = nil) -> NP {
     return NP{
         size = dimensions,
         mapLocation = loc,
@@ -30,6 +38,9 @@ init_np :: proc(dimensions: rl.Vector2, loc: rl.Vector2, col: rl.Color, interact
         interactable = interact,
         interaction_type = inter_type,
         interaction_data = inter_data,
+        movementRange = moveRange,
+        movementType = moveType,
+        movementSpeed = moveSpd,
     }
 }
 

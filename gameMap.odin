@@ -23,7 +23,7 @@ draw_map :: proc(m: ^GameMap) {
     // Draw the map as a rectangle with the given size and color
     rl.DrawRectangle(0, 0, i32(m.size.x), i32(m.size.y), m.color)
 
-    // Draw all objects on the map
+    // Draw all non-playables on the map
     for &np in m.nps {
         draw_nonplayable(&np)
     }
