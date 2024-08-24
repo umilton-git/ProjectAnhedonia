@@ -81,15 +81,15 @@ check_collision :: proc(player_pos, player_size: rl.Vector2, game_map: ^GameMap)
         height = player_size.y,
     }
     
-    for &obj in game_map.objects {
-        obj_rect := rl.Rectangle{
-            x = obj.mapLocation.x,
-            y = obj.mapLocation.y,
-            width = obj.size.x,
-            height = obj.size.y,
+    for &np in game_map.nps {
+        np_rect := rl.Rectangle{
+            x = np.mapLocation.x,
+            y = np.mapLocation.y,
+            width = np.size.x,
+            height = np.size.y,
         }
         
-        if rl.CheckCollisionRecs(player_rect, obj_rect) {
+        if rl.CheckCollisionRecs(player_rect, np_rect) {
             return true  // Collision detected
         }
     }
