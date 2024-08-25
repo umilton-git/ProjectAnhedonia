@@ -1,5 +1,6 @@
 package main
 import rl "vendor:raylib"
+import "core:fmt"
 
 Player :: struct {
     position: rl.Vector2,
@@ -43,19 +44,19 @@ move_player :: proc(p: ^Player, game_map: ^GameMap, speed: f32) {
     movement := rl.Vector2{}
 
     // Check left movement
-    if rl.IsKeyDown(.LEFT) && !check_collision(rl.Vector2{p.position.x - speed * delta_time, p.position.y}, p.size, game_map) {
+    if rl.IsKeyDown(.LEFT) && check_collision(rl.Vector2{p.position.x - speed * delta_time, p.position.y}, p.size, game_map) == nil {
         movement.x -= 1
     }
     // Check right movement
-    if rl.IsKeyDown(.RIGHT) && !check_collision(rl.Vector2{p.position.x + speed * delta_time, p.position.y}, p.size, game_map) {
+    if rl.IsKeyDown(.RIGHT) && check_collision(rl.Vector2{p.position.x + speed * delta_time, p.position.y}, p.size, game_map) == nil {
         movement.x += 1
     }
     // Check upward movement
-    if rl.IsKeyDown(.UP) && !check_collision(rl.Vector2{p.position.x, p.position.y - speed * delta_time}, p.size, game_map) {
+    if rl.IsKeyDown(.UP) && check_collision(rl.Vector2{p.position.x, p.position.y - speed * delta_time}, p.size, game_map) == nil {
         movement.y -= 1
     }
     // Check downward movement
-    if rl.IsKeyDown(.DOWN) && !check_collision(rl.Vector2{p.position.x, p.position.y + speed * delta_time}, p.size, game_map) {
+    if rl.IsKeyDown(.DOWN) && check_collision(rl.Vector2{p.position.x, p.position.y + speed * delta_time}, p.size, game_map) == nil {
         movement.y += 1
     }
 
@@ -71,9 +72,12 @@ move_player :: proc(p: ^Player, game_map: ^GameMap, speed: f32) {
     // Clamp the position within the map boundaries
     p.position.x = clamp(p.position.x, 0, game_map.size.x - p.size.x)
     p.position.y = clamp(p.position.y, 0, game_map.size.y - p.size.y)
+
+    // Check for interaction
+    interact(p, game_map)
 }
 
-check_collision :: proc(player_pos, player_size: rl.Vector2, game_map: ^GameMap) -> bool {
+check_collision :: proc(player_pos, player_size: rl.Vector2, game_map: ^GameMap) -> ^NP {
     player_rect := rl.Rectangle{
         x = player_pos.x,
         y = player_pos.y,
@@ -90,11 +94,51 @@ check_collision :: proc(player_pos, player_size: rl.Vector2, game_map: ^GameMap)
         }
         
         if rl.CheckCollisionRecs(player_rect, np_rect) {
-            return true  // Collision detected
+            return &np  // Return the pointer to the colliding object
         }
     }
     
-    return false  // No collision
+    return nil  // Return nil if no collision
+}
+
+interact :: proc(p: ^Player, game_map: ^GameMap) {
+    if rl.IsKeyPressed(.Z) {
+        // Define an interaction range
+        interaction_range := f32(10.0)  // pixels
+
+        // Check in all directions around the player
+        directions := [4]rl.Vector2{
+            {-interaction_range, 0},  // Left
+            {interaction_range, 0},   // Right
+            {0, -interaction_range},  // Up
+            {0, interaction_range},   // Down
+        }
+
+        for direction in directions {
+            check_pos := rl.Vector2Add(p.position, direction)
+            if obj := check_collision(check_pos, p.size, game_map); obj != nil {
+                handle_interaction(obj)
+                return  // Exit after handling the first interaction
+            }
+        }
+    }
+}
+
+handle_interaction :: proc(obj: ^NP) {
+    if obj == nil do return
+    
+    switch obj.interaction_type {
+    case .None:
+        fmt.println("Sorry, nothing!")
+
+    case .DisplayText:
+        fmt.println("text display")
+        
+    case .TriggerEffect:
+        fmt.println("Triggering effect")
+
+    // Cases WIP
+    }
 }
 
 draw_player :: proc(p: ^Player) {

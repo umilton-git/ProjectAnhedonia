@@ -2,6 +2,7 @@ package main
 import rl "vendor:raylib"
 
 InteractionType :: enum {
+    None,
     DisplayText,
     TriggerEffect,
     Collectible,

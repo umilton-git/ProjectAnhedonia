@@ -12,8 +12,8 @@ main :: proc() {
     player := init_player("TheBull.png", {game_map.size.x/2, game_map.size.y/2})
 
     // Add some NonPlayables to the map
-    add_np_to_map(&game_map, init_np({50, 50}, {200, 100}, rl.RED, true))
-    add_np_to_map(&game_map, init_np({30, 30}, {500, 250}, rl.BLUE, false))
+    add_np_to_map(&game_map, init_np({50, 50}, {200, 100}, rl.RED, true, InteractionType.DisplayText))
+    add_np_to_map(&game_map, init_np({30, 30}, {500, 250}, rl.BLUE, true, InteractionType.None))
 
     // Initialize the camera
     camera := init_camera(game_map.size)
