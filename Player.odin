@@ -7,6 +7,7 @@ Player :: struct {
     texture:  rl.Texture2D,
     num_frames: int,
     current_frame: int,
+    can_move: bool,
     frame_timer: f32,
     frame_length: f32,
     size: rl.Vector2,  // Add this field to store the player's size
@@ -21,6 +22,7 @@ init_player :: proc(texture_path: cstring, start_pos: rl.Vector2) -> Player {
         texture = texture,
         num_frames = 1,
         current_frame = 0,
+        can_move = true,
         frame_timer = 0,
         frame_length = 0.1,
         size = {frame_width * 1.5, frame_height * 1.5},  // Store the scaled size
@@ -40,6 +42,8 @@ update_player_frame :: proc(p: ^Player) {
 }
 
 move_player :: proc(p: ^Player, game_map: ^GameMap, speed: f32) {
+    if !p.can_move do return
+
     delta_time := rl.GetFrameTime()
     movement := rl.Vector2{}
 
@@ -117,27 +121,46 @@ interact :: proc(p: ^Player, game_map: ^GameMap) {
         for direction in directions {
             check_pos := rl.Vector2Add(p.position, direction)
             if obj := check_collision(check_pos, p.size, game_map); obj != nil {
-                handle_interaction(obj)
+                handle_interaction(p, obj)
                 return  // Exit after handling the first interaction
             }
         }
     }
 }
 
-handle_interaction :: proc(obj: ^NP) {
+handle_interaction :: proc(p: ^Player, obj: ^NP) {
     if obj == nil do return
     
     switch obj.interaction_type {
     case .None:
         fmt.println("Sorry, nothing!")
 
-    case .DisplayText:
-        fmt.println("text display")
+        case .DisplayText:
+            p.can_move = false
+            if interaction_data, ok := obj.interaction_data.?; ok {
+                if len(interaction_data.text) > 0 {
+                    display_dialogue(interaction_data.text)
+                } else {
+                    display_dialogue("Error: Empty text in interaction data.")
+                }
+            } else {
+                display_dialogue("Error: No interaction data available.")
+            }
         
     case .TriggerEffect:
         fmt.println("Triggering effect")
 
     // Cases WIP
+    }
+}
+
+update_player :: proc(p: ^Player, game_map: ^GameMap, speed: f32) {
+    if !p.can_move {
+        if !update_dialogue() {
+            p.can_move = true  // Dialogue ended, player can move again
+        }
+    } else {
+        move_player(p, game_map, speed)
     }
 }
 
