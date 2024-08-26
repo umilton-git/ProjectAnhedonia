@@ -4,8 +4,8 @@ An attempt at making a game in Odin Lang.
 Mostly off the cuff, updating with ideas as they come to me.
 
 ## To Do (In order of priority): 
-  - Flesh out interaction system
-  - Add UI text capabilites
+  - Flesh out interaction system (In Progress)
+  - ~~Add UI text capabilites~~
   - Decide a font
   - Flesh out Non-playable movement system
   - Create Game State Manager
