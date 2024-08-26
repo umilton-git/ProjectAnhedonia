@@ -2,7 +2,7 @@ package main
 import rl "vendor:raylib"
 
 InteractionType :: enum {
-    None,
+    None, // Remove this later, won't need to handle unnecessary cases
     DisplayText,
     TriggerEffect,
     Collectible,
