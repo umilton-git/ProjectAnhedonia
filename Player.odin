@@ -1,6 +1,7 @@
 package main
 import rl "vendor:raylib"
 import "core:fmt"
+import "core:strings"
 
 Player :: struct {
     position: rl.Vector2,
@@ -135,17 +136,19 @@ handle_interaction :: proc(p: ^Player, obj: ^NP) {
     case .None:
         fmt.println("Sorry, nothing!")
 
-        case .DisplayText:
-            p.can_move = false
-            if interaction_data, ok := obj.interaction_data.?; ok {
-                if len(interaction_data.text) > 0 {
-                    display_dialogue(interaction_data.text)
-                } else {
-                    display_dialogue("Error: Empty text in interaction data.")
-                }
+    case .DisplayText:
+        p.can_move = false
+        if interaction_data, ok := obj.interaction_data.?; ok {
+            if len(interaction_data.text) > 0 {
+                // Split the text into multiple messages if it contains line breaks
+                messages := strings.split(interaction_data.text, "\n")
+                display_dialogue(messages)
             } else {
-                display_dialogue("Error: No interaction data available.")
+                display_dialogue([]string{"Error: Empty text in interaction data."})
             }
+        } else {
+            display_dialogue([]string{"Error: No interaction data available."})
+        }
         
     case .TriggerEffect:
         fmt.println("Triggering effect")

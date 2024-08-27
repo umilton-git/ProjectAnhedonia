@@ -7,7 +7,8 @@ import "core:fmt"
 DialogueBox :: struct {
     position: rl.Vector2,
     size: rl.Vector2,
-    text: string,
+    messages: []string,
+    current_message: int,
     font: rl.Font,
     font_size: f32,
     text_color: rl.Color,
@@ -33,8 +34,9 @@ init_dialogue_system :: proc(pos, size: rl.Vector2, font: rl.Font, font_size: f3
     }
 }
 
-display_dialogue :: proc(text: string) {
-    global_dialogue_box.text = text
+display_dialogue :: proc(messages: []string) {
+    global_dialogue_box.messages = messages
+    global_dialogue_box.current_message = 0
     global_dialogue_box.current_char = 0
     global_dialogue_box.time_since_last_char = 0
     global_dialogue_box.is_active = true
@@ -43,19 +45,26 @@ display_dialogue :: proc(text: string) {
 update_dialogue :: proc() -> bool {
     if !global_dialogue_box.is_active do return false
 
+    current_text := global_dialogue_box.messages[global_dialogue_box.current_message]
+
     global_dialogue_box.time_since_last_char += rl.GetFrameTime()
     if global_dialogue_box.time_since_last_char >= global_dialogue_box.char_reveal_speed && 
-       global_dialogue_box.current_char < len(global_dialogue_box.text) {
+       global_dialogue_box.current_char < len(current_text) {
         global_dialogue_box.current_char += 1
         global_dialogue_box.time_since_last_char = 0
     }
 
     if rl.IsKeyPressed(.Z) {
-        if global_dialogue_box.current_char < len(global_dialogue_box.text) {
-            global_dialogue_box.current_char = len(global_dialogue_box.text)  // Reveal all text
+        if global_dialogue_box.current_char < len(current_text) {
+            global_dialogue_box.current_char = len(current_text)  // Reveal all text
         } else {
-            global_dialogue_box.is_active = false  // Close the dialogue box
-            return false  // Dialogue ended
+            global_dialogue_box.current_message += 1
+            if global_dialogue_box.current_message >= len(global_dialogue_box.messages) {
+                global_dialogue_box.is_active = false  // Close the dialogue box
+                return false  // Dialogue ended
+            } else {
+                global_dialogue_box.current_char = 0  // Reset for next message
+            }
         }
     }
 
@@ -66,9 +75,9 @@ draw_dialogue :: proc() {
     if !global_dialogue_box.is_active do return
 
     rl.DrawRectangleV(global_dialogue_box.position, global_dialogue_box.size, global_dialogue_box.background_color)
-    visible_text := global_dialogue_box.text[:global_dialogue_box.current_char]
+    current_text := global_dialogue_box.messages[global_dialogue_box.current_message]
+    visible_text := current_text[:global_dialogue_box.current_char]
     
-    // Convert string to cstring
     c_text := strings.clone_to_cstring(visible_text)
     defer delete_cstring(c_text)
 
